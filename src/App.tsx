@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Icon from '@mdi/react';
 import { mdiTshirtCrew, mdiTshirtV, mdiCartPlus } from '@mdi/js';
 import { CirclePicker, ColorResult } from 'react-color';
@@ -9,9 +9,12 @@ import './App.css';
 import {
   CatalogState,
   shirtPageLookups,
-  ShirtPageViewModel
+  ShirtPageViewModel,
+  accessories,
+  AccessoryOrder
 } from './pages/catalog/catalog-models';
 import { processSelection } from './pages/catalog/inventory-rules';
+import AccessoriesGallery from './pages/catalog/accessories-gallery';
 
 const defaultColor = '#f44336';
 
@@ -25,12 +28,25 @@ const defaultLookups: ShirtPageViewModel = JSON.parse(
   JSON.stringify(shirtPageLookups)
 );
 
+const defaultAccessories: AccessoryOrder[] = accessories.map(a => {
+  return { itemNumber: a.itemNumber, name: a.name, quantity: 0 };
+});
+
+const items = [1, 2, 3, 4, 5];
+
 const App: React.FC = () => {
   const [lookupState, setLookupState] = useState<ShirtPageViewModel | null>(
     null
   );
   const [state, setState] = useState<CatalogState | null>(null);
   const [hoverColor, setHoverColor] = useState('');
+  const [accessories, setAccessories] = useState<AccessoryOrder[]>(
+    defaultAccessories
+  );
+
+  const galleryItems = useMemo(() => {
+    return items.map(i => <h2 key={i}> {i}</h2>);
+  }, []);
 
   useEffect(() => {
     const defaults = processSelection(defaultState, defaultLookups);
@@ -44,6 +60,19 @@ const App: React.FC = () => {
 
     setLookupState(processed.workingLookups);
     setState(processed.workingItem);
+  };
+
+  const handleAccessoryChange = (itemNumber: string, quantity: number) => {
+    setAccessories(prevState => {
+      const list = prevState.map(item => {
+        if (item.itemNumber === itemNumber) {
+          return { ...item, quantity: quantity };
+        }
+        return item;
+      });
+
+      return list;
+    });
   };
 
   const handleSwatchHover = (color: ColorResult, event: MouseEvent): void => {
@@ -73,6 +102,8 @@ const App: React.FC = () => {
     setState({ ...defaultState });
   };
 
+  const myItems = galleryItems;
+
   return (
     <>
       {lookupState && state && (
@@ -100,37 +131,59 @@ const App: React.FC = () => {
                 size={10}
                 color={hoverColor || state.color}
               />
-              <h2>Color</h2>
-              <div onMouseLeave={handleSwatchLeave}>
-                <CirclePicker
-                  width="300"
-                  colors={lookupState.colors}
-                  color={state.color}
-                  onSwatchHover={handleSwatchHover}
-                  onChange={handleSwatchChange}
-                />
+            </div>
+            <h2>Color</h2>
+            <div onMouseLeave={handleSwatchLeave}>
+              <CirclePicker
+                width="300"
+                colors={lookupState.colors}
+                color={state.color}
+                onSwatchHover={handleSwatchHover}
+                onChange={handleSwatchChange}
+              />
+            </div>
+            <div className="container">
+              <div className="row">
+                <div className="col-md-4 offset-4">
+                  <div className="form-group gutter-top">
+                    <label htmlFor="select-size">Size</label>
+                    <select
+                      className="form-control"
+                      id="select-size"
+                      name="size"
+                      onChange={handleSizeChange}
+                      value={state.size}
+                    >
+                      <option value="">Please Select</option>
+                      {lookupState.sizes.map(s => (
+                        <option value={s.value}>{s.text}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
               </div>
-              <div className="form-group gutter-top">
-                <label htmlFor="select-size">Size</label>
-                <select
-                  className="form-control"
-                  id="select-size"
-                  name="size"
-                  onChange={handleSizeChange}
-                  value={state.size}
-                >
-                  <option value="">Please Select</option>
-                  {lookupState.sizes.map(s => (
-                    <option value={s.value}>{s.text}</option>
-                  ))}
-                </select>
+
+              <div className="row">
+                <div className="col-md-12">
+                  {myItems && (
+                    <AccessoriesGallery
+                      accessories={accessories}
+                      onQuantityChanged={handleAccessoryChange}
+                    />
+                  )}
+                </div>
               </div>
-              <Button variant="primary" onClick={handleAddToCart}>
-                Add To Cart <Icon path={mdiCartPlus} size={1} color="white" />
-              </Button>{' '}
-              <Button variant="secondary" onClick={handleReset}>
-                Reset
-              </Button>
+              <div className="row">
+                <div className="col-md-4 offset-4">
+                  <Button variant="primary" onClick={handleAddToCart}>
+                    Add To Cart{' '}
+                    <Icon path={mdiCartPlus} size={1} color="white" />
+                  </Button>{' '}
+                  <Button variant="secondary" onClick={handleReset}>
+                    Reset
+                  </Button>
+                </div>
+              </div>
             </div>
           </header>
         </div>

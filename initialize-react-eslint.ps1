@@ -1,1 +1,1 @@
-npm i -D @types/react @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint-config-prettier eslint-config-react eslint-plugin-prettier prettier
+npm i -D eslint-config-prettier eslint-plugin-prettier prettier

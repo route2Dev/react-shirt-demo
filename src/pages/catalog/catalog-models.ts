@@ -19,6 +19,15 @@ export interface ShirtPageViewModel {
   sizes: KeyValuePair[];
 }
 
+export interface Accessory {
+  itemNumber: string;
+  name: string;
+}
+
+export interface AccessoryOrder extends Accessory {
+  quantity: number;
+}
+
 export const styles: KeyValuePair[] = [
   { text: 'Crew', value: 'C' },
   { text: 'V-Neck', value: 'V' }
@@ -30,6 +39,14 @@ export const sizes: KeyValuePair[] = [
   { text: 'Large', value: 'L' },
   { text: 'Extra Large', value: 'XL' },
   { text: 'XXL', value: 'XXL' }
+];
+
+export const accessories: Accessory[] = [
+  { itemNumber: '1', name: 'sunglasses' },
+  { itemNumber: '2', name: 'fanny-pack' },
+  { itemNumber: '3', name: 'baseball cap' },
+  { itemNumber: '4', name: 'knit cap' },
+  { itemNumber: '5', name: 'headband' }
 ];
 
 export const colors = [
